@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aqua Cast — Premium Die-Cast Store</title>
+
+<!--
+  Single-file premium mini-store
+  - Replace placeholder images with your die-cast photos (600-900px wide)
+  - Works offline in browser; no build step required
+-->
+
+<style>
+  :root{
+    --bg-start: #fbfbfc;
+    --bg-end: #eef0f2;
+    --muted: #6b6b75;
+    --text: #0b1020;
+    --glass: rgba(255,255,255,0.72);
+    --glass-strong: rgba(255,255,255,0.86);
+    --accent: #8aa6ff;
+    --ease: cubic-bezier(.16,.84,.34,1);
+    --water-duration: 0.56s;
+    --card-radius: 16px;
+    --shadow-soft: 0 10px 30px rgba(5,10,20,0.08);
+  }
+
+  /* Basic reset */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    color:var(--text);
+    background:linear-gradient(180deg,var(--bg-start),var(--bg-end));
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+    -webkit-font-variant-ligatures: contextual;
+  }
+
+  /* Layout container */
+  .container{max-width:1150px;margin:0 auto;padding:0 20px}
+
+  /* NAVBAR */
+  .nav {
+    position:sticky; top:12px; z-index:60;
+    margin: 12px auto 0;
+    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.50));
+    border-radius: 14px;
+    box-shadow: var(--shadow-soft);
+    padding:10px;
+    transition: transform 0.45s var(--ease), box-shadow 0.25s linear;
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+  .brand .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0f1724,#98a6ff);box-shadow:0 6px 18px rgba(14,18,30,0.12)}
+  .brand .title{font-weight:600;letter-spacing:0.6px}
+  nav .links{display:flex;gap:18px;align-items:center}
+  nav a{position:relative;color:var(--muted);text-decoration:none;font-weight:500;padding:8px 6px;border-radius:6px}
+  nav a:hover{color:var(--text)}
+  /* flowing underline */
+  nav a::after{
+    content:"";position:absolute;left:8px;right:8px;height:2px;bottom:6px;background:linear-gradient(90deg,var(--accent),#b3d0ff);border-radius:2px;transform:scaleX(0);transform-origin:left center;transition:transform 420ms var(--ease),opacity 220ms linear;opacity:0
+  }
+  nav a:hover::after{transform:scaleX(1);opacity:1}
+
+  .actions{display:flex;align-items:center;gap:12px}
+  .icon-btn{background:transparent;border:0;padding:8px;border-radius:10px;cursor:pointer}
+  .pill{background:var(--text);color:white;padding:8px 12px;border-radius:999px;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(8,10,20,0.12)}
+  .cart-count{font-size:12px;background:#ff5c5c;padding:4px 7px;border-radius:999px;color:white;margin-left:-8px;position:relative;top:-8px;left:-6px}
+
+  /* HERO */
+  .hero{padding:44px 0 26px}
+  .hero-grid{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center}
+  .hero-left h1{font-size:36px;margin:0 0 12px;line-height:1.03}
+  .hero-left p{margin:0;color:var(--muted);max-width:56ch}
+  .cta-row{margin-top:18px;display:flex;gap:12px;align-items:center}
+  .btn-primary{background:var(--text);color:white;padding:12px 18px;border-radius:999px;border:0;font-weight:600;cursor:pointer;box-shadow:0 12px 30px rgba(10,12,20,0.12);transition:transform 200ms var(--ease)}
+  .btn-primary:hover{transform:translateY(-3px)}
+  .btn-ghost{background:transparent;border:1px solid rgba(10,12,20,0.06);padding:10px 16px;border-radius:999px;cursor:pointer}
+
+  /* hero image */
+  .hero-card{border-radius:18px;overflow:hidden;box-shadow:var(--shadow-soft);background:var(--glass-strong);backdrop-filter:blur(6px);position:relative}
+  .hero-card img{width:100%;height:320px;object-fit:cover;display:block}
+
+  /* COLS / PRODUCTS */
+  .section{padding:34px 0}
+  .section h2{margin:0 0 8px;font-size:20px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .product{background:white;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(12,16,24,0.06);transition:transform 420ms var(--ease), box-shadow 280ms linear;cursor:pointer}
+  .product:hover{transform:translateY(-6px)}
+  .product-img{height:200px;overflow:hidden}
+  .product-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 760ms var(--ease);will-change:transform}
+  .product:hover .product-img img{transform:scale(1.05)}
+  .product-body{padding:14px}
+  .product-title{font-weight:600;margin-bottom:6px}
+  .product-meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+
+  /* responsive grid */
+  @media (max-width:1000px){ .hero-grid{grid-template-columns:1fr} .grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:640px){ .nav .links{display:none} .grid{grid-template-columns:1fr} .hero-card img{height:220px} .hero-left h1{font-size:28px} .nav{margin:8px 12px} .container{padding:0 12px} }
+
+  /* PRODUCT MODAL */
+  .modal-backdrop{position:fixed;inset:0;background:linear-gradient(180deg, rgba(8,10,20,0.18), rgba(8,10,20,0.12));display:flex;align-items:center;justify-content:center;z-index:80;backdrop-filter: blur(6px)}
+  .modal{width:min(920px,94%);background:white;border-radius:14px;overflow:hidden;display:flex;gap:18px;box-shadow:0 24px 60px rgba(6,10,20,0.3)}
+  .modal-left{flex:1;min-width:320px}
+  .modal-left img{width:100%;height:520px;object-fit:cover}
+  .modal-right{width:360px;padding:22px;display:flex;flex-direction:column;gap:12px}
+  .specs{color:var(--muted);font-size:14px}
+  .qty{display:flex;gap:8px;align-items:center}
+  .circle-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(12,16,24,0.06);display:inline-flex;align-items:center;justify-content:center;background:white;cursor:pointer}
+
+  /* CART DRAWER */
+  .cart-drawer{position:fixed;right:0;top:0;height:100vh;width:360px;background:linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.84));backdrop-filter:blur(12px);box-shadow:-18px 0 60px rgba(6,10,20,0.14);padding:20px;transform:translateX(110%);transition:transform var(--water-duration) var(--ease);z-index:90;border-radius:12px 0 0 12px}
+  .cart-drawer.open{transform:translateX(0)}
+  .cart-item{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg,#fff,#fafbff);box-shadow:0 6px 18px rgba(8,10,20,0.04)}
+  .cart-items{display:flex;flex-direction:column;gap:12px;margin-top:16px;overflow:auto;max-height:60vh;padding-right:6px}
+  .cart-footer{margin-top:auto;padding-top:12px;border-top:1px dashed rgba(12,16,24,0.06);display:flex;flex-direction:column;gap:8px}
+
+  /* subtle shimmer background (very soft) */
+  .flowing-bg{position:fixed;inset:-20%;z-index:-30;filter:blur(60px);opacity:0.45;pointer-events:none;background:
+    radial-gradient(600px 300px at 10% 10%, rgba(138,166,255,0.14), transparent 10%),
+    radial-gradient(500px 250px at 90% 80%, rgba(180,220,255,0.10), transparent 10%),
+    radial-gradient(400px 200px at 50% 50%, rgba(200,240,255,0.06), transparent 10%);transform:translateZ(0);}
+
+  /* some utility */
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .spacer{height:28px}
+
+  /* reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+  <div class="flowing-bg" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav container" role="banner" aria-label="Main navigation">
+    <div class="nav-inner">
+      <div class="brand" onclick="scrollTop()">
+        <div class="mark" aria-hidden="true"></div>
+        <div class="title">Aqua Cast</div>
+      </div>
+
+      <nav class="links" aria-label="Primary">
+        <a href="#cars">Cars</a>
+        <a href="#bikes">Bikes</a>
+        <a href="#characters">Characters</a>
+        <a href="#avatars">Avatars</a>
+      </nav>
+
+      <div class="actions">
+        <button class="icon-btn" title="Search" aria-label="Search" onclick="alert('Search demo')">🔍</button>
+        <button class="pill" id="cartBtn" onclick="toggleCart()" aria-controls="cart" aria-expanded="false">Cart <span id="count" class="cart-count" style="display:none">0</span></button>
+        <button class="icon-btn" aria-label="Open menu" onclick="openMobileMenu()" id="menuBtn">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="background:#eef3ff;color:#2b3b78;padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px">Premium Die-Cast</div>
+            <div class="muted small">Limited drops • Museum finish</div>
+          </div>
+          <h1 style="margin:0 0 8px">Smooth. Refined. Collectible.</h1>
+          <p class="muted">Explore meticulously crafted scale models — cars, bikes, characters, and avatars — photographed as premium miniatures. The browsing experience flows like cold water.</p>
+
+          <div class="cta-row">
+            <button class="btn-primary" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Shop New Arrivals</button>
+            <button class="btn-ghost" onclick="document.getElementById('collections').scrollIntoView({behavior:'smooth'})">View Collections</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="hero-card" role="img" aria-label="Featured models">
+            <img src="https://via.placeholder.com/900x520?text=Diecast+Hero+Pair" alt="Featured die-cast models">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="shop" class="section">
+      <h2 id="collections">Featured Collection</h2>
+      <p class="muted small">Hand-picked die-cast scale models for collectors.</p>
+
+      <div style="height:14px"></div>
+
+      <div id="productGrid" class="grid" aria-live="polite"></div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <section class="section">
+      <div style="display:flex;gap:18px;align-items:center;justify-content:space-between">
+        <div>
+          <h2>Collector’s Circle</h2>
+          <p class="muted small">Join for early access and limited drops.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="email" placeholder="you@domain.com" style="padding:10px;border-radius:10px;border:1px solid rgba(12,16,24,0.06)" />
+          <button class="btn-primary" onclick="alert('Subscribed — demo')">Subscribe</button>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:48px"></div>
+  </main>
+
+  <!-- PRODUCT MODAL -->
+  <div id="modalBackdrop" class="modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-hidden="true" onclick="closeModal(event)">
+    <div id="modal" class="modal" role="document" onclick="event.stopPropagation()">
+      <div class="modal-left">
+        <img id="modalImage" src="" alt="">
+      </div>
+      <div class="modal-right">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div id="modalTitle" style="font-weight:700;font-size:18px"></div>
+            <div class="muted small" id="modalScale"></div>
+          </div>
+          <button style="border:0;background:none;font-size:20px;cursor:pointer" onclick="closeModal()">✕</button>
+        </div>
+        <div style="height:8px"></div>
+        <div id="modalDesc" class="specs"></div>
+        <div style="height:12px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="qty muted small">Qty:
+            <button class="circle-btn" onclick="changeQty(-1)">−</button>
+            <span id="qty" style="display:inline-block;width:34px;text-align:center">1</span>
+            <button class="circle-btn" onclick="changeQty(1)">+</button>
+          </div>
+          <div style="font-weight:700" id="modalPrice"></div>
+        </div>
+        <div style="height:12px"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-primary" onclick="addToCartFromModal()">Add to cart</button>
+          <button class="btn-ghost" onclick="buyNow()">Buy now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <aside id="cart" class="cart-drawer" aria-hidden="true">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="margin:0">Your Cart</h3>
+      <button style="border:0;background:none;font-size:18px;cursor:pointer" onclick="toggleCart()">✕</button>
+    </div>
+
+    <div id="cartItems" class="cart-items" aria-live="polite"></div>
+
+    <div class="cart-footer">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="muted small">Subtotal</div>
+        <div style="font-weight:700" id="subtotal">$0.00</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-primary" onclick="checkout()">Checkout</button>
+        <button class="btn-ghost" onclick="clearCart()">Clear</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MOBILE MENU (sliding) -->
+  <div id="mobileMenu" style="position:fixed;left:-320px;top:0;height:100%;width:320px;background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.92));backdrop-filter:blur(10px);box-shadow:18px 0 60px rgba(10,12,20,0.08);padding:26px;z-index:100;transition:left var(--water-duration) var(--ease)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700">Menu</div>
+      <button style="border:0;background:none;font-size:18px;cursor:pointer" onclick="closeMobileMenu()">✕</button>
+    </div>
+    <div style="height:18px"></div>
+    <nav style="display:flex;flex-direction:column;gap:12px">
+      <a href="#cars" onclick="closeMobileMenu()">Cars</a>
+      <a href="#bikes" onclick="closeMobileMenu()">Bikes</a>
+      <a href="#characters" onclick="closeMobileMenu()">Characters</a>
+      <a href="#avatars" onclick="closeMobileMenu()">Avatars</a>
+    </nav>
+  </div>
+
+<script>
+/* ========= Sample product data (replace images with your files) ========= */
+const PRODUCTS = [
+  { id:'p-1', name:'Porsche Carrera GT (1:18)', price:249.00, scale:'1:18', tag:'NEW', img:'https://via.placeholder.com/800x600?text=Porsche+1:18', desc:'Museum-grade paint, die-cast metal body, rubber tires, opening doors and trunk.', specs:{material:'Die-cast metal + ABS', length_mm:250} },
+  { id:'p-2', name:'Yamaha R1M (1:12)', price:119.00, scale:'1:12', tag:'LIMITED', img:'https://via.placeholder.com/800x600?text=Yamaha+1:12', desc:'Precision fairings and realistic decals.', specs:{material:'Die-cast + plastic', length_mm:180} },
+  { id:'p-3', name:'Nissan GT-R NISMO (1:18)', price:199.00, scale:'1:18', tag:'ICON', img:'https://via.placeholder.com/800x600?text=GT-R+1:18', desc:'High-detail trim and interior.', specs:{material:'Die-cast metal', length_mm:260} },
+  { id:'p-4', name:'Iron Legend Figure (1:10)', price:159.00, scale:'1:10', tag:'COLLECT', img:'https://via.placeholder.com/800x600?text=Figure+1:10', desc:'Limited-run painted armor and base.', specs:{material:'Die-cast + resin', height_mm:120} },
+  { id:'p-5', name:'Retro Pixel Avatar (1:8)', price:89.00, scale:'1:8', tag:'AVATAR', img:'https://via.placeholder.com/800x600?text=Avatar+1:8', desc:'Stylized collectible with gloss finish.', specs:{material:'Die-cast metal', height_mm:95} },
+  { id:'p-6', name:'Ducati Panigale V4 (1:12)', price:139.00, scale:'1:12', tag:'RACE', img:'https://via.placeholder.com/800x600?text=Ducati+1:12', desc:'Realistic exhaust & chain, adjustable stand.', specs:{material:'Die-cast + rubber', length_mm:190} },
+];
+
+/* === render products into grid === */
+const grid = document.getElementById('productGrid');
+function money(n){ return n.toLocaleString(undefined,{style:'currency',currency:'USD'}) }
+function renderProducts(){
+  grid.innerHTML = '';
+  PRODUCTS.forEach(p=>{
+    const card = document.createElement('article');
+    card.className = 'product';
+    card.setAttribute('role','button');
+    card.innerHTML = `
+      <div class="product-img"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>
+      <div class="product-body">
+        <div class="product-title">${p.name}</div>
+        <div class="product-meta"><div class="muted small">${p.scale}</div><div style="font-weight:700">${money(p.price)}</div></div>
+        <div style="height:10px"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" style="padding:8px 12px">View</button>
+          <button class="btn-ghost" style="padding:8px 12px">Add</button>
+        </div>
+      </div>
+    `;
+    // view click shows modal
+    card.querySelector('.btn-primary').addEventListener('click',()=>openModal(p));
+    // add quick
+    card.querySelector('.btn-ghost').addEventListener('click',()=>{ addToCart(p,1); pulseCart(); });
+    grid.appendChild(card);
+  });
+}
+renderProducts();
+
+/* ========= modal logic ========= */
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalScale = document.getElementById('modalScale');
+const modalDesc = document.getElementById('modalDesc');
+const modalPrice = document.getElementById('modalPrice');
+let currentProduct = null;
+let qty = 1;
+
+function openModal(product){
+  currentProduct = product;
+  qty = 1;
+  document.getElementById('qty').innerText = qty;
+  modalImage.src = product.img;
+  modalTitle.innerText = product.name;
+  modalScale.innerText = `Scale: ${product.scale}`;
+  modalDesc.innerText = product.desc;
+  modalPrice.innerText = money(product.price);
+  modalBackdrop.style.display = 'flex';
+  modalBackdrop.setAttribute('aria-hidden','false');
+  // focus management
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e){
+  if(e && e.target && e.target !== modalBackdrop) return;
+  modalBackdrop.style.display = 'none';
+  modalBackdrop.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+
+/* qty */
+function changeQty(delta){
+  qty = Math.max(1, qty + delta);
+  document.getElementById('qty').innerText = qty;
+}
+
+/* buy now */
+function buyNow(){
+  if(!currentProduct) return;
+  addToCart(currentProduct, qty);
+  toggleCart(true);
+  closeModal();
+}
+
+/* ========== cart system (simple, local memory) ========== */
+let CART = JSON.parse(localStorage.getItem('aqua_cart') || '[]'); // array {id,qty}
+const cartItemsNode = document.getElementById('cartItems');
+const countNode = document.getElementById('count');
+const cartBtn = document.getElementById('cartBtn');
+const subtotalNode = document.getElementById('subtotal');
+
+function saveCart(){ localStorage.setItem('aqua_cart', JSON.stringify(CART)); renderCart(); }
+
+function addToCart(product, q=1){
+  const idx = CART.findIndex(i=>i.id===product.id);
+  if(idx>-1) CART[idx].qty += q;
+  else CART.push({id:product.id, qty:q});
+  saveCart();
+  showCartCount();
+  // animation hint: simple
+  pulseCart();
+}
+function removeFromCart(id){
+  CART = CART.filter(i=>i.id!==id); saveCart(); showCartCount();
+}
+function clearCart(){ CART = []; saveCart(); showCartCount(); }
+function showCartCount(){
+  const total = CART.reduce((s,i)=>s+i.qty,0);
+  if(total>0){ countNode.style.display='inline-block'; countNode.innerText = total; cartBtn.setAttribute('aria-expanded','true'); }
+  else { countNode.style.display='none'; cartBtn.setAttribute('aria-expanded','false'); }
+}
+
+/* render cart with staggered reveal */
+function renderCart(){
+  cartItemsNode.innerHTML = '';
+  if(CART.length===0){ cartItemsNode.innerHTML = '<div class="muted small">Your cart is empty.</div>'; subtotalNode.innerText = money(0); return; }
+  // detailed items with product data
+  const details = CART.map(it=> ({...PRODUCTS.find(p=>p.id===it.id), qty: it.qty}) );
+  // create items with slight delay
+  details.forEach((it, i)=>{
+    const wrapper = document.createElement('div');
+    wrapper.className = 'cart-item';
+    wrapper.style.opacity = '0';
+    wrapper.style.transform = 'translateY(10px)';
+    wrapper.innerHTML = `
+      <img src="${it.img}" alt="${it.name}" style="width:64px;height:48px;object-fit:cover;border-radius:8px">
+      <div style="flex:1">
+        <div style="font-weight:600">${it.name}</div>
+        <div class="muted small">${it.scale} • qty: ${it.qty}</div>
+      </div>
+      <div style="font-weight:700">${money(it.price * it.qty)}</div>
+      <button style="border:0;background:none;cursor:pointer;padding-left:8px" aria-label="Remove item">✕</button>
+    `;
+    wrapper.querySelector('button').addEventListener('click',()=>{ removeFromCart(it.id); });
+    cartItemsNode.appendChild(wrapper);
+    // stagger reveal
+    setTimeout(()=>{ wrapper.style.transition = 'transform 360ms var(--ease), opacity 360ms var(--ease)'; wrapper.style.opacity = '1'; wrapper.style.transform = 'translateY(0)'; }, 70 * i);
+  });
+  const total = details.reduce((s,it)=>s + it.price*it.qty, 0);
+  subtotalNode.innerText = money(total);
+}
+
+/* open/close cart with nice easing */
+function toggleCart(forceOpen){
+  const c = document.getElementById('cart');
+  const shouldOpen = (typeof forceOpen === 'boolean') ? forceOpen : !c.classList.contains('open');
+  if(shouldOpen){
+    c.classList.add('open');
+    c.setAttribute('aria-hidden','false');
+    // set focus trap? simple approach:
+    document.body.style.overflow = 'hidden';
+  } else {
+    c.classList.remove('open');
+    c.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+}
+
+/* small pulse on cart pill for feedback */
+function pulseCart(){
+  cartBtn.animate([ {transform:'translateY(0) scale(1)'},{transform:'translateY(-6px) scale(1.03)'},{transform:'translateY(0) scale(1)'} ], { duration:520, easing:'ease-out' });
+}
+
+/* mobile menu */
+function openMobileMenu(){
+  document.getElementById('mobileMenu').style.left = '0';
+  document.getElementById('menuBtn').setAttribute('aria-expanded','true');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu(){
+  document.getElementById('mobileMenu').style.left = '-320px';
+  document.getElementById('menuBtn').setAttribute('aria-expanded','false');
+  document.body.style.overflow = '';
+}
+
+/* helper: scroll top */
+function scrollTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* checkout placeholder */
+function checkout(){ alert('Checkout — demo only'); }
+
+/* add to cart from modal */
+function addToCartFromModal(){
+  if(!currentProduct) return;
+  addToCart(currentProduct, qty);
+  toggleCart(true);
+  closeModal();
+}
+
+/* initial load */
+renderCart();
+showCartCount();
+renderProducts();
+
+/* accessibility: close modal with Escape */
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){ closeModal(); closeMobileMenu(); const c = document.getElementById('cart'); if(c.classList.contains('open')) toggleCart(false); }
+});
+</script>
+</body>
+</html>
